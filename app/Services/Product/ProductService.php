@@ -47,7 +47,7 @@ class ProductService
         $count = 1;
 
         while(Product::where('slug', $slug)->exists()) {
-            $slug = $originalSlug . '-' . count++;
+            $slug = $originalSlug . '-' . $count++;
         }
 
         return $slug;
