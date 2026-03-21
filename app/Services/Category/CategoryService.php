@@ -2,7 +2,7 @@
 
 namespace App\Services\Category;
 
-use App\Model\Category;
+use App\Models\Category;
 use Illuminate\Support\Str;
 
 class CategoryService

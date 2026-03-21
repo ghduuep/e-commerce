@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Services\Category\CategoryService;
+use App\Models\Category;
 
 class CategoryController extends Controller
 {
@@ -41,6 +43,6 @@ class CategoryController extends Controller
     {
         $this->service->delete($category);
 
-        return response()->json(['message'] => 'Deleted');
+        return response()->json(['message' => 'Deleted']);
     }
 }
