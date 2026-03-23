@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Models\Order;
 use App\Models\OrderItem;
+use Stripe\Stripe;
+use Stripe\Checkout\Session as StripeSession;
 
 class OrderController extends Controller
 {
@@ -21,33 +22,38 @@ class OrderController extends Controller
             ], 400);
         }
 
-        return DB::transaction(function () use ($cart, $user) {
-            $total = $cart->items->sum(function ($item) {
-                return $item->quantity * $item->product->price;
-            });
+        $lineItems = [];
 
-            $order = Order::create([
-                'user_id' => $user->id,
-                'total' => $total,
-                'status' => 'pending',
-            ]);
+        foreach ($cart->items as $item) {
+            $lineItems[] = [
+                'price_data' => [
+                    'currency' => 'brl',
+                    'product_data' => [
+                        'name' => $item->product->name,
+                    ],
+                    'unit_amount' => $item->product->price * 100,
+                ],
+                'quantity' => $item->quantity,
+            ];
+        }
 
-            foreach ($cart->items as $item) {
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $item->product_id,
-                    'quantity' => $item->quantity,
-                    'price' => $item->product->price,
-                ]);
-            }
+        Stripe::setApiKey(config('services.stripe.secret'));
 
-            $cart->items()->delete();
+        $session = StripeSession::create([
+            'payment_method_types' => ['card'],
+            'line_items' => $lineItems,
+            'mode' => 'payment',
+            'success_url' => 'http://localhost:3000/success',
+            'cancel_url' => 'http://localhost:3000/cancel',
 
-            return response()->json([
-                'message' => 'Order created successfuly',
-                'order' => $order->load('items.product')
-            ]);
-        });
+            'metadata' => [
+                'order_id' => $order->id,
+            ]
+        ]);
+
+        return response()->json([
+            'url' => $session->url,
+        ]);
     }
 
     public function index(Request $request)

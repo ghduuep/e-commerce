@@ -7,10 +7,13 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Store\CartController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\StripeWebhookController;
 
 Route::get('/products', [StoreProductController::class, 'index']);
 Route::get('/products/{slug}', [StoreProductController::class, 'show']);
 Route::post('/login', [AuthController::class, 'login']);
+
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/cart', [CartController::class, 'index']);
