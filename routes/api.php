@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Store\CartController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\OrderController;
 
 Route::get('/products', [StoreProductController::class, 'index']);
 Route::get('/products/{slug}', [StoreProductController::class, 'show']);
@@ -17,6 +18,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/cart/remove/{productId}', [CartController::class, 'remove']);
     Route::put('/cart/update/{productId}', [CartController::class, 'update']);
     Route::get('/cart/total', [CartController::class, 'total']);
+    Route::post('/checkout', [OrderController::class, 'checkout']);
+    Route::get('orders', [OrderController::class, 'index']);
 });
 
 Route::prefix('admin')->group(function () {
