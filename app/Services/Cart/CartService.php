@@ -47,7 +47,7 @@ class CartService
 
         $product = $cart->items()->where('product_id', $productId)->firstOrFail();
 
-        $item->update(['quantity' => $quantity]);
+        $product->update(['quantity' => $quantity]);
 
         return $this->getCart($user);
     }
@@ -56,7 +56,7 @@ class CartService
     {
         $cart = $this->getCart($user);
 
-        return $cart->items()->sum(function ($item) {
+        return $cart->items->sum(function ($item) {
             return $item->quantity * $item->product->price;
         });
     }
