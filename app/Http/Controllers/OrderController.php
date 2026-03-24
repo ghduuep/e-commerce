@@ -22,6 +22,27 @@ class OrderController extends Controller
             ], 400);
         }
 
+        $total = 0;
+
+        foreach ($cart->items as $item) {
+            $total += $item->product->price * $item->quantity;
+        }
+
+        $order = Order::create([
+            'user_id' => $user->id,
+            'status' => 'pending',
+            'total' => $total,
+        ]);
+
+        foreach ($cart->items as $item) {
+            OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $item->product->id,
+                'quantity' => $item->quantity,
+                'price' => $item->product->price,
+            ]);
+        }
+
         $lineItems = [];
 
         foreach ($cart->items as $item) {
@@ -49,6 +70,10 @@ class OrderController extends Controller
             'metadata' => [
                 'order_id' => $order->id,
             ]
+        ]);
+
+        $order->update([
+            'stripe_session_id' => $session->id
         ]);
 
         return response()->json([
